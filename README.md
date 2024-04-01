@@ -9,5 +9,7 @@
 ## How to run it:
 
 ```c++
-g++ b_skip_list.cpp -o temp -Wall -g -std=c++11
+g++ b_skip_list.cpp -o b_skip_list -Wall -g -std=c++11
+
+./b_skip_list
 ```
