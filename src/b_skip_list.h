@@ -1,7 +1,8 @@
 #pragma once
 #include <list>
-#include <stack>
 #include "block.h"
+#include <vector>
+
 template<typename T>
 class BSkipList
 {
@@ -9,7 +10,7 @@ private:
     // Stores the head block at each level
     std::list<Block<T> *> levels;
     // returns the path to the key
-    std::stack<Block<T> *> getBlocksInPath(int key);
+    std::list<Block<T> *> getBlocksInPath(int key);
 
 public:
     // Stores the probability of a node being promoted to the next level

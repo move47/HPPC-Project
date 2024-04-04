@@ -1,6 +1,10 @@
 #include "block.h"
+#include "node.h"
+#include <list>
+
 using namespace std;
 #include <iostream>
+
 template<typename T>
 Block<T>::Block()
 {
@@ -25,11 +29,15 @@ Block<T>::Block(std::list<Node<T>*> nodes, Block<T> *next)
 template<typename T>
 void Block<T>::print()
 {
+    // Node* prev = nullptr;
+    // Block
+    // while()   
     for (auto node : nodes)
     {
         std::cout << node->get_key() << " ";
     }
-    std::cout << std::endl;
+    cout << " | " ;
+    
 }
 
 template<typename T>
