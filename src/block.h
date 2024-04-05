@@ -1,5 +1,5 @@
 #pragma once
-#include <list>
+#include <vector>
 #include "node.h"
 
 template<typename T>

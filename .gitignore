@@ -31,4 +31,6 @@
 *.out
 *.app
 
-./src/b_skip_list.dSYM/*
+*src/b_skip_list.dSYM*
+*vscode*
+*src/b_skip_list*
