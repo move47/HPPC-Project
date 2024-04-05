@@ -56,7 +56,8 @@ void BSkipList<T>::insert(int key, T value){
 
             Block<T>* curr_block = greatest_min_block;
 
-            for ( int i = 0; i < curr_block->nodes.size(); i++ ) {
+            int size = curr_block->nodes.size();
+            for ( int i = 0; i < size; i++ ) {
                 if ( key > curr_block->nodes[i]->get_key() ) {
                     greatest_min_block = curr_block->nodes[i]->down;
                 }
@@ -76,7 +77,8 @@ void BSkipList<T>::insert(int key, T value){
 
             int insert_index = curr_block->nodes.size();
 
-            for ( int i = 0; i < curr_block->nodes.size(); i++ ) {
+            int size = curr_block->nodes.size();
+            for ( int i = 0; i < size; i++ ) {
                 if ( key < curr_block->nodes[i]->get_key() ) {
                     insert_index = i;
                     break;
