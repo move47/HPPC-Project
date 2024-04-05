@@ -26,6 +26,4 @@ public:
     // helper functions
     void print();
     std::vector<int> getAverageSize();
-    void setLevels(int max_levels);
-    int getLevels();
 };
