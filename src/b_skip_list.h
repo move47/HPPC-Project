@@ -9,12 +9,14 @@ class BSkipList
 private:
     // Stores the head block at each level
     std::vector<Block<T> *> levels;
+    // Stores the number of levels
+    int num_levels = 0;
 
 public:
     // Stores the probability of a node being promoted to the next level
     int r = 1;
     const float P_FACTOR = 0.25;
-    BSkipList();
+    BSkipList(int max_levels);
     ~BSkipList();
     void insert(int key, T value);
     void remove(int key);
@@ -24,5 +26,6 @@ public:
     // helper functions
     void print();
     std::vector<int> getAverageSize();
+    void setLevels(int max_levels);
     int getLevels();
 };

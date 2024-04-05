@@ -13,11 +13,12 @@ using namespace std;
 
 // Default constructor
 template<typename T>
-BSkipList<T>::BSkipList(){
+BSkipList<T>::BSkipList(int max_levels){
     Block<T>* prev_block = nullptr;
-    this->levels = vector<Block<T>*>(50);
+    this->num_levels = max_levels;
+    this->levels = vector<Block<T>*>(max_levels);
 
-    for ( int i = 49; i >= 0; i-- ) {
+    for ( int i = max_levels - 1; i >= 0; i-- ) {
         Block<T> *block = new Block<T>(new Node<T>(INT_MIN, 0, nullptr), nullptr); // negative infinity block
         this->levels[i] = block;
         if ( prev_block != nullptr ) {
@@ -40,7 +41,7 @@ void BSkipList<T>::insert(int key, T value){
     srand(key);
 
     int num_flips = 0;
-    while (num_flips < 50 && rand() % 2 == 0) {
+    while (num_flips < this->num_levels && rand() % 2 == 0) {
         num_flips++;
     }
 
@@ -240,7 +241,7 @@ std::vector<Block<T>*> BSkipList<T>::range_query(int key1, int key2){
 template<typename T>
 void BSkipList<T>::print(){
     // print levels info
-    int count = 49;
+    int count = this->num_levels - 1;
     for (auto it = levels.rbegin(); it != levels.rend(); ++it) {
         cout << "Level -- " << count-- << ": ";
         Block<T>* curr_level = *it;
@@ -262,19 +263,31 @@ std::vector<int> BSkipList<T>::getAverageSize(){
     return vector<int>();
 }
 
+template <typename T>
+void BSkipList<T>::setLevels(int max_levels)
+{
+    num_levels = max_levels;
+}
+
+template <typename T>
+int BSkipList<T>::getLevels()
+{
+    return num_levels;
+}
+
 int main(){
     srand(time(0));
-    BSkipList<int> b_skip_list;
+    BSkipList<int> b_skip_list(50);
     // b_skip_list.print();
     // b_skip_list.insert(1, 1);
     // b_skip_list.insert(2, 2);
     // return 0;
-    int a[1000000];
-    for(int i=0;i<1000000;i++){
+    int a[50];
+    for(int i=0;i<50;i++){
         a[i] = i;
     }
-    random_shuffle(a, a + 1000000);
-    for(int i = 0; i < 1000000; i++){
+    random_shuffle(a, a + 50);
+    for(int i = 0; i < 50; i++){
         // b_skip_list.print();
         b_skip_list.insert(a[i], a[i]);
         // b_skip_list.print();
@@ -290,8 +303,8 @@ int main(){
     // b_skip_list.print();
     // b_skip_list.remove(60);
     // b_skip_list.print();
-    random_shuffle(a, a + 1000000);
-    for(int i = 0; i < 1000000; i++){
+    random_shuffle(a, a + 50);
+    for(int i = 0; i < 50; i++){
         // b_skip_list.print();
         b_skip_list.remove(a[i]);
         // printf("Number %d inserted\n", a[i]);
