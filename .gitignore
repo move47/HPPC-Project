@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+*src/b_skip_list.dSYM*
+*vscode*
+*src/b_skip_list*
+*test*

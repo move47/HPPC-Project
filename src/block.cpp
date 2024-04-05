@@ -1,10 +1,14 @@
 #include "block.h"
+#include "node.h"
+#include <list>
+
 using namespace std;
 #include <iostream>
+
 template<typename T>
 Block<T>::Block()
 {
-    nodes = std::list<Node<T>*>();
+    nodes = std::vector<Node<T>*>();
     this->next = NULL;
 }
 
@@ -16,7 +20,7 @@ Block<T>::Block(Node<T> *node, Block<T> *next)
 }
 
 template<typename T>
-Block<T>::Block(std::list<Node<T>*> nodes, Block<T> *next)
+Block<T>::Block(std::vector<Node<T>*> nodes, Block<T> *next)
 {
     this->nodes = nodes;
     this->next = next;
@@ -24,16 +28,17 @@ Block<T>::Block(std::list<Node<T>*> nodes, Block<T> *next)
 
 template<typename T>
 void Block<T>::print()
-{
+{  
     for (auto node : nodes)
     {
         std::cout << node->get_key() << " ";
     }
-    std::cout << std::endl;
+    cout << " | " ;
+    
 }
 
 template<typename T>
-std::list<Node<T>*> Block<T>::get_nodes()
+std::vector<Node<T>*> Block<T>::get_nodes()
 {
     return nodes;
 }
