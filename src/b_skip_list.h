@@ -8,9 +8,7 @@ class BSkipList
 {
 private:
     // Stores the head block at each level
-    std::list<Block<T> *> levels;
-    // returns the path to the key
-    std::list<Block<T> *> getBlocksInPath(int key);
+    std::vector<Block<T> *> levels;
 
 public:
     // Stores the probability of a node being promoted to the next level
