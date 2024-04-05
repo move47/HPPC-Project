@@ -15,9 +15,9 @@ using namespace std;
 template<typename T>
 BSkipList<T>::BSkipList(){
     Block<T>* prev_block = nullptr;
-    this->levels = vector<Block<T>*>(10);
+    this->levels = vector<Block<T>*>(50);
 
-    for ( int i = 9; i >= 0; i-- ) {
+    for ( int i = 49; i >= 0; i-- ) {
         Block<T> *block = new Block<T>(new Node<T>(INT_MIN, 0, nullptr), nullptr); // negative infinity block
         this->levels[i] = block;
         if ( prev_block != nullptr ) {
@@ -38,7 +38,7 @@ template<typename T>
 void BSkipList<T>::insert(int key, T value){
 
     int num_flips = 0;
-    while (num_flips < 10 && rand() % 2 == 0) {
+    while (num_flips < 50 && rand() % 2 == 0) {
         num_flips++;
     }
 
@@ -238,7 +238,7 @@ std::vector<Block<T>*> BSkipList<T>::range_query(int key1, int key2){
 template<typename T>
 void BSkipList<T>::print(){
     // print levels info
-    int count = 9;
+    int count = 49;
     for (auto it = levels.rbegin(); it != levels.rend(); ++it) {
         cout << "Level -- " << count-- << ": ";
         Block<T>* curr_level = *it;
@@ -261,6 +261,7 @@ std::vector<int> BSkipList<T>::getAverageSize(){
 }
 
 int main(){
+    srand(time(0));
     BSkipList<int> b_skip_list;
     // b_skip_list.print();
     // b_skip_list.insert(1, 1);
