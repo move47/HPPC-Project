@@ -44,7 +44,7 @@ void BSkipList<T>::insert(int key, T value){
     // cout << "Number of flips: " << num_flips << endl;
 
     Block<T>* greatest_min_block = levels[levels.size() - 1];
-    greatest_min_block->print();
+    // greatest_min_block->print();
     bool first_insert = false;
     Node<T>* parent = nullptr;
 
@@ -118,7 +118,44 @@ void BSkipList<T>::insert(int key, T value){
 // Remove a key-value pair
 template<typename T>
 void BSkipList<T>::remove(int key){
-    // TODO Remove implementation
+
+    Block<T>* greatest_min_block = levels[levels.size() - 1];
+    // greatest_min_block->print();
+    bool found = false;
+    int found_index = -1;
+
+    while ( !found && greatest_min_block != nullptr ) {
+        int size = greatest_min_block->nodes.size();
+        Block<T>* curr_block = greatest_min_block;
+        int index = 0;
+        for ( int i = 0; i<size; i++ ) {
+            if ( key > curr_block->nodes[i]->get_key() ) {
+                index = i;
+            }
+            else {
+                break;
+            }
+        }
+
+        // curr_block->print();
+        if ( index < size - 1 && key == curr_block->nodes[index + 1]->get_key() ) {
+            found = true;
+            found_index = index;
+            break;
+        }
+        else {
+            greatest_min_block = curr_block->nodes[index]->down;
+        }
+    }
+
+    if ( found_index == -1 ) {
+        cout << "Key not found" << endl;
+        return;
+    }
+    else {
+        greatest_min_block->print();
+    }
+
 }
 
 // Search for a key
@@ -130,9 +167,9 @@ bool BSkipList<T>::search(int key){
 
 // range query
 template<typename T>
-std::vector<bool> BSkipList<T>::range_query(int key1, int key2){
+std::vector<Block<T>*> BSkipList<T>::range_query(int key1, int key2){
     // Range query implementation
-    return vector<bool>();
+    return this->levels;
 }
 
 // print
@@ -173,9 +210,19 @@ int main(){
     }
     random_shuffle(a, a + 50);
     for(int i = 0; i < 50; i++){
-        b_skip_list.print();
+        // b_skip_list.print();
         b_skip_list.insert(a[i], a[i]);
-        b_skip_list.print();
-        printf("Number %d inserted\n", a[i]);
+        // b_skip_list.print();
+        // printf("Number %d inserted\n", a[i]);
     }
+    // vector<Block<int>*> ls = b_skip_list.range_query(0, 0);
+    // ls[0]->next->print();
+    // cout <<endl;
+    // ls[4]->print();
+    // cout <<endl;
+    b_skip_list.print();
+    b_skip_list.remove(7);
+    // b_skip_list.print();
+    b_skip_list.remove(60);
+    // b_skip_list.print();
 }
