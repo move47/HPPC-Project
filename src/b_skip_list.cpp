@@ -37,6 +37,8 @@ BSkipList<T>::~BSkipList(){
 template<typename T>
 void BSkipList<T>::insert(int key, T value){
 
+    srand(key);
+
     int num_flips = 0;
     while (num_flips < 50 && rand() % 2 == 0) {
         num_flips++;
