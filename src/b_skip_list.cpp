@@ -7,6 +7,7 @@
 #include<climits>
 #include<algorithm>
 #include<vector>
+#include<utility>
 
 using namespace std;
 
@@ -119,6 +120,77 @@ void BSkipList<T>::insert(int key, T value){
 template<typename T>
 void BSkipList<T>::remove(int key){
 
+    // Block<T>* greatest_min_block = levels[levels.size() - 1];
+    // // greatest_min_block->print();
+    // bool found = false;
+    // int found_index = -1;
+
+    // while ( !found && greatest_min_block != nullptr ) {
+    //     int size = greatest_min_block->nodes.size();
+    //     Block<T>* curr_block = greatest_min_block;
+    //     int index = 0;
+    //     for ( int i = 0; i<size; i++ ) {
+    //         if ( key > curr_block->nodes[i]->get_key() ) {
+    //             index = i;
+    //         }
+    //         else {
+    //             break;
+    //         }
+    //     }
+
+    //     // curr_block->print();
+    //     if ( index < size - 1 && key == curr_block->nodes[index + 1]->get_key() ) {
+    //         found = true;
+    //         found_index = index + 1;
+    //         break;
+    //     }
+    //     else {
+    //         greatest_min_block = curr_block->nodes[index]->down;
+    //     }
+    // }
+
+    // if ( found_index == -1 ) {
+    //     cout << "Key not found" << endl;
+    //     return;
+    // }
+    // else {
+    //     // greatest_min_block->print();
+    // }
+
+    pair<Block<T>*, int> search_info = this->search(key);
+    if ( search_info.first == nullptr )
+        return;
+    
+    Block<T>* greatest_min_block = search_info.first;
+    int found_index = search_info.second;
+
+    // Block<T>* next_level_prev = nullptr;
+    Block<T>* curr_block = greatest_min_block;
+    Block<T>* next_level_prev = curr_block->nodes[found_index - 1]->down;
+    Block<T>* next_level_self = curr_block->nodes[found_index]->down;
+
+    curr_block->nodes.erase(curr_block->nodes.begin() + found_index);
+
+    curr_block = next_level_self;
+
+    while ( curr_block != nullptr ) {
+        next_level_self = curr_block->nodes[0]->down;
+        Block<T>* curr_level_prev = next_level_prev;
+        next_level_prev = curr_level_prev->nodes.back()->down;
+        curr_block->nodes.erase(curr_block->nodes.begin());
+        curr_level_prev->nodes.insert(curr_level_prev->nodes.end(), curr_block->nodes.begin(), curr_block->nodes.end());
+        curr_level_prev->next = curr_level_prev->next->next;
+        // Delete current block
+        delete curr_block;
+        curr_block = next_level_self;
+        // curr_level_prev = next_level_prev;
+    }
+}
+
+// Search for a key
+template<typename T>
+pair<Block<T>*, int> BSkipList<T>::search(int key){
+    
     Block<T>* greatest_min_block = levels[levels.size() - 1];
     // greatest_min_block->print();
     bool found = false;
@@ -140,7 +212,7 @@ void BSkipList<T>::remove(int key){
         // curr_block->print();
         if ( index < size - 1 && key == curr_block->nodes[index + 1]->get_key() ) {
             found = true;
-            found_index = index;
+            found_index = index + 1;
             break;
         }
         else {
@@ -150,19 +222,9 @@ void BSkipList<T>::remove(int key){
 
     if ( found_index == -1 ) {
         cout << "Key not found" << endl;
-        return;
+        return {nullptr, -1};
     }
-    else {
-        greatest_min_block->print();
-    }
-
-}
-
-// Search for a key
-template<typename T>
-bool BSkipList<T>::search(int key){
-    // TODO Search implementation
-    return false;
+    return {greatest_min_block, found_index}; 
 }
 
 // range query
@@ -204,12 +266,12 @@ int main(){
     // b_skip_list.insert(1, 1);
     // b_skip_list.insert(2, 2);
     // return 0;
-    int a[50];
-    for(int i=0;i<50;i++){
+    int a[1000000];
+    for(int i=0;i<1000000;i++){
         a[i] = i;
     }
-    random_shuffle(a, a + 50);
-    for(int i = 0; i < 50; i++){
+    random_shuffle(a, a + 1000000);
+    for(int i = 0; i < 1000000; i++){
         // b_skip_list.print();
         b_skip_list.insert(a[i], a[i]);
         // b_skip_list.print();
@@ -220,9 +282,16 @@ int main(){
     // cout <<endl;
     // ls[4]->print();
     // cout <<endl;
+    // b_skip_list.print();
+    // b_skip_list.remove(7);
+    // b_skip_list.print();
+    // b_skip_list.remove(60);
+    // b_skip_list.print();
+    random_shuffle(a, a + 1000000);
+    for(int i = 0; i < 1000000; i++){
+        // b_skip_list.print();
+        b_skip_list.remove(a[i]);
+        // printf("Number %d inserted\n", a[i]);
+    }
     b_skip_list.print();
-    b_skip_list.remove(7);
-    // b_skip_list.print();
-    b_skip_list.remove(60);
-    // b_skip_list.print();
 }

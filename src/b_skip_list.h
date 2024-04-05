@@ -1,6 +1,7 @@
 #pragma once
 #include "block.h"
 #include <vector>
+#include <utility>
 
 template<typename T>
 class BSkipList
@@ -17,8 +18,8 @@ public:
     ~BSkipList();
     void insert(int key, T value);
     void remove(int key);
-    bool search(int key);
-    std::vector<bool> range_query(int start_key, int end_key);
+    std::pair<Block<T>*, int> search(int key);
+    std::vector<Block<T>*> range_query(int start_key, int end_key);
     
     // helper functions
     void print();
