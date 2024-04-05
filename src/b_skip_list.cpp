@@ -29,7 +29,37 @@ void BSkipList<T>::insert(int key, T value){
 // Remove a key-value pair
 template<typename T>
 void BSkipList<T>::remove(int key){
-    // TODO Remove implementation
+    std::list<Block<T> *> path = getBlocksInPath(key);
+    std::vector<Block<T> *> prev_blocks_for_removed_nodes;
+
+    for ( auto start_block = this->levels.rbegin(); start_block != this->levels.rend(); start_block++ ) {
+        Block<T> * prev_block = nullptr;
+        Block<T> * current_block = start_block;
+        bool found = false;
+
+        while ( current_block != nullptr && !found ) {
+            for ( auto node : current_block->get_nodes() ) {
+                if ( node->get_key() == key ) {
+                    if ( prev_block != nullptr ) {
+                        prev_block->set_next( current_block->get_next() );
+                        prev_blocks_for_removed_nodes.push_back( prev_block );
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+            prev_block = current_block;
+            current_block = current_block->get_next();
+        }
+    }
+
+    int prev = 0;
+    for ( !path.empty() ) {
+        Block<T> * current_block = path.front();
+        path.pop_front();
+        
+    }
+    
 }
 
 // Search for a key

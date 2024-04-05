@@ -118,8 +118,151 @@ public:
     // static std::uniform_real_distribution<> distr(0, 1); // define the range
     BSkipList()
     {
-        Block *block = new Block(new Node(INT_MIN, nullptr), nullptr); // negative infinity block
-        levels.push_back(block);
+        // Block *block = new Block(new Node(INT_MIN, nullptr), nullptr); // negative infinity block
+        // levels.push_back(block);
+
+        Node* level1_node1 = new Node(1, nullptr);
+        Node* level1_node2 = new Node(10, nullptr);
+        std::vector<Node*> level1;
+        level1.push_back(level1_node1);
+        level1.push_back(level1_node2);
+        Block* level1Block = new Block(level1, nullptr);
+
+        Node* level2_node1 = new Node(1, nullptr);
+        Node* level2_node2 = new Node(3, nullptr);
+        Node* level2_node3 = new Node(5, nullptr);
+        std::vector<Node*> level2_1;
+        level2_1.push_back(level2_node1);
+        level2_1.push_back(level2_node2);
+        level2_1.push_back(level2_node3);
+        Block* levelBlock2_1 = new Block(level2_1, nullptr);
+        level1_node1->down = levelBlock2_1;
+
+        Node* level2_node4 = new Node(10, nullptr);
+        Node* level2_node5 = new Node(12, nullptr);
+        std::vector<Node*> level2_2;
+        level2_2.push_back(level2_node4);
+        level2_2.push_back(level2_node5);
+        Block* levelBlock2_2 = new Block(level2_2, nullptr);
+        level1_node2->down = levelBlock2_2;
+        
+        levelBlock2_1->next = levelBlock2_2;
+
+        Node* level3_node1 = new Node(1, nullptr);
+        Node* level3_node2 = new Node(2, nullptr);
+        std::vector<Node*> level3_1;
+        level3_1.push_back(level3_node1);
+        level3_1.push_back(level3_node2);
+        Block* levelBlock3_1 = new Block(level3_1, nullptr);
+        level2_node1->down = levelBlock3_1;
+
+        Node* level3_node3 = new Node(3, nullptr);
+        Node* level3_node4 = new Node(4, nullptr);
+        std::vector<Node*> level3_2;
+        level3_2.push_back(level3_node3);
+        level3_2.push_back(level3_node4);
+        Block* levelBlock3_2 = new Block(level3_2, nullptr);
+        level2_node2->down = levelBlock3_2;
+
+        Node* level3_node5 = new Node(5, nullptr);
+        Node* level3_node6 = new Node(6, nullptr);
+        std::vector<Node*> level3_3;
+        level3_3.push_back(level3_node5);
+        level3_3.push_back(level3_node6);
+        Block* levelBlock3_3 = new Block(level3_3, nullptr);
+        level2_node3->down = levelBlock3_3;
+
+        Node* level3_node7 = new Node(10, nullptr);
+        Node* level3_node8 = new Node(11, nullptr);
+        std::vector<Node*> level3_4;
+        level3_4.push_back(level3_node7);
+        level3_4.push_back(level3_node8);
+        Block* levelBlock3_4 = new Block(level3_4, nullptr);
+        level2_node4->down = levelBlock3_4;
+
+        Node* level3_node9 = new Node(12, nullptr);
+        Node* level3_node10 = new Node(13, nullptr);
+        std::vector<Node*> level3_5;
+        level3_5.push_back(level3_node9);
+        level3_5.push_back(level3_node10);
+        Block* levelBlock3_5 = new Block(level3_5, nullptr);
+        level2_node5->down = levelBlock3_5;
+
+        levelBlock3_1->next = levelBlock3_2;
+        levelBlock3_2->next = levelBlock3_3;
+        levelBlock3_3->next = levelBlock3_4;
+        levelBlock3_4->next = levelBlock3_5;
+        
+        levels.push_back(levelBlock3_1);
+        levels.push_back(levelBlock2_1);
+        levels.push_back(level1Block);
+
+    //     Node* level1_node1 = new Node(1, nullptr);
+    //     Node* level2_node1 = new Node(1, nullptr);
+    //     Node* node_2 = new Node(2, nullptr);
+    //     Node* node_3 = new Node(3, nullptr);
+    //     Node* node_4 = new Node(4, nullptr);
+    //     Node* node_5 = new Node(5, nullptr);
+    //     Node* node_6 = new Node(6, nullptr);
+    //     Node* node_7 = new Node(7, nullptr);
+    //     Node* node_8 = new Node(8, nullptr);
+    //     Node* node_9 = new Node(9, nullptr);
+    //     Node* node_10 = new Node(10, nullptr);
+    //     Node* node_11 = new Node(11, nullptr);
+    //     Node* node_12 = new Node(12, nullptr);
+    //     Node* node_13 = new Node(13, nullptr);
+
+    //     std::vector<Node*> level1;
+    //     level1.push_back(node_1);
+    //     level1.push_back(node_10);
+    //     Block* level1Block = new Block(level1, nullptr);
+
+    //     // Level 2
+    //     std::vector<Node*> level2_1;
+    //     level2_1.push_back(node_1);
+    //     level2_1.push_back(node_3);
+    //     level2_1.push_back(node_5);
+    //     Block* levelBlock2_1 = new Block(level2_1, nullptr);
+
+    //     node_1->down = levelBlock2_1;
+    //     node
+
+    //     std::vector<Node*> level2_2;
+    //     level2_1.push_back(node_10);
+    //     level2_1.push_back(node_12);
+    //     Block* levelBlock2_2 = new Block(level2_2, nullptr);
+    //     levelBlock2_1->next = levelBlock2_2;
+
+    //    // Level 3
+    //     std::vector<Node*> level3_1;
+    //     level3_1.push_back(node_1);
+    //     level3_1.push_back(node_2);
+    //     Block* levelBlock3_1 = new Block(level3_1, nullptr);
+
+    //     std::vector<Node*> level3_2;
+    //     level3_2.push_back(node_3);
+    //     level3_2.push_back(node_4);
+    //     Block* levelBlock3_2 = new Block(level3_2, nullptr);
+
+    //     std::vector<Node*> level3_3;
+    //     level3_3.push_back(node_5);
+    //     level3_3.push_back(node_6);
+    //     Block* levelBlock3_3 = new Block(level3_3, nullptr);
+
+    //     std::vector<Node*> level3_4;
+    //     level3_4.push_back(node_10);
+    //     level3_4.push_back(node_11);
+    //     Block* levelBlock3_4 = new Block(level3_4, nullptr);
+
+    //     std::vector<Node*> level3_5;
+    //     level3_5.push_back(node_12);
+    //     level3_5.push_back(node_13);
+    //     Block* levelBlock3_5 = new Block(level3_5, nullptr);
+
+    //     levelBlock3_1->next = levelBlock3_2;
+    //     levelBlock3_2->next = levelBlock3_3;
+    //     levelBlock3_3->next = levelBlock3_4;
+    //     levelBlock3_4->next = levelBlock3_5;
     }
 
     ~BSkipList()
@@ -201,174 +344,196 @@ public:
         }
     }
 
-    // void remove(int value)
-    // {
-    //     std::stack<Block *> blocks = getBlockStack(value);
-    //     Block *current;
-    //     Block *block;
-    //     vector<Block *> update;
-    //     Block *curr = nullptr;
-    //     bool flag = false;
-    //     for (int i = levels.size() - 1; i >= 0; i--)
-    //     {
-    //         Block *pre = nullptr;
-    //         curr = levels[i];
-    //         while (curr)
-    //         {
-    //             for (int j = 0; j < curr->vector.size(); j++)
-    //             {
-    //                 if (curr->vector[j]->value == value)
-    //                 {
-    //                     if (pre)
-    //                     {
-    //                         flag = true;
-    //                         update.push_back(pre);
-    //                         // cout << pre->vector[0]->value << "pre" << endl;
-    //                     }
-    //                     break;
-    //                 }
-    //             }
-    //             if (flag)
-    //             {
-    //                 flag = false;
-    //                 break;
-    //             }
-
-    //             pre = curr;
-    //             curr = curr->next;
-    //         }
-    //     }
-
-    //     // for (int i = 0; i < update.size(); i++)
-    //     // {
-    //     //     cout << update[i]->vector[0]->value << "update" << endl;
-    //     //     if (update[i]->next)
-    //     //     {
-    //     //         cout << update[i]->next->vector[0]->value << "update next" << endl;
-    //     //         if(update[i]->next->vector.size() > 1){
-    //     //             cout << update[i]->next->vector[1]->value << "test" << endl;
-    //     //         }
-    //     //     }
-    //     // }
-    //     int x = 0;
-    //     while (!blocks.empty())
-    //     {
-    //         block = blocks.top();
-    //         blocks.pop();
-
-    //         for (unsigned int i = 0; i < block->vector.size(); i++)
-    //         {
-    //             if (block->vector[i]->value == value)
-    //             {
-    //                 Block *downBlock = block->vector[i]->down;
-    //                 block->vector.erase(block->vector.begin() + i);
-
-    //                 while (downBlock != nullptr)
-    //                 {
-    //                     current = downBlock->vector[0]->down;
-    //                     downBlock->vector.erase(downBlock->vector.begin());
-    //                     if (!downBlock->vector.empty())
-    //                     {
-    //                         update[x]->vector.insert(update[x]->vector.end(), downBlock->vector.begin(), downBlock->vector.end());
-    //                         update[x]->next = update[x]->next->next;
-    //                         x++;
-    //                     }
-    //                     else
-    //                     {
-    //                         update[x]->next = update[x]->next->next;
-    //                         x++;
-    //                     }
-
-    //                     downBlock = current;
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-
     void remove(int value)
     {
         std::stack<Block *> blocks = getBlockStack(value);
         Block *current;
         Block *block;
         vector<Block *> update;
-
-        // Traverse the levels to find the blocks containing the value
+        Block *curr = nullptr;
+        bool flag = false;
         for (int i = levels.size() - 1; i >= 0; i--)
         {
             Block *pre = nullptr;
-            current = levels[i];
-            while (current)
+            curr = levels[i];
+            while (curr)
             {
-                for (int j = 0; j < current->vector.size(); j++)
+                for (int j = 0; j < curr->vector.size(); j++)
                 {
-                    if (current->vector[j]->value == value)
+                    if (curr->vector[j]->value == value)
                     {
                         if (pre)
                         {
+                            flag = true;
                             update.push_back(pre);
+                            // cout << pre->vector[0]->value << "pre" << endl;
                         }
                         break;
                     }
                 }
-                pre = current;
-                current = current->next;
+                if (flag)
+                {
+                    flag = false;
+                    break;
+                }
+
+                pre = curr;
+                curr = curr->next;
             }
         }
 
-        // Iterate over the blocks in the stack
+        // for (int i = 0; i < update.size(); i++)
+        // {
+        //     cout << update[i]->vector[0]->value << "update" << endl;
+        //     if (update[i]->next)
+        //     {
+        //         cout << update[i]->next->vector[0]->value << "update next" << endl;
+        //         if(update[i]->next->vector.size() > 1){
+        //             cout << update[i]->next->vector[1]->value << "test" << endl;
+        //         }
+        //     }
+        // }
+
+        // Print the blocks in the stack
+        Block *block1;
+        while (!blocks.empty())
+        {
+            block1 = blocks.top();
+            blocks.pop();
+            cout << block1->vector[0]->value << " ";
+        }
+        blocks = getBlockStack(value);
+
+        // Print the update vector in full content
+        for (int i = 0; i < update.size(); i++)
+        {
+            cout << update[i]->vector[0]->value << " ";
+        }
+
+        int x = 0;
         while (!blocks.empty())
         {
             block = blocks.top();
             blocks.pop();
 
-            // Iterate over the nodes in the block
             for (unsigned int i = 0; i < block->vector.size(); i++)
             {
-                // If the node contains the value to remove
                 if (block->vector[i]->value == value)
                 {
-                    // Erase the node from the block
+                    Block *downBlock = block->vector[i]->down;
                     block->vector.erase(block->vector.begin() + i);
-                }
-            }
-        }
 
-        // Iterate over the update vector and adjust the structure
-        for (int i = 0; i < update.size(); i++)
-        {
-            // Iterate over the blocks in the update vector
-            block = update[i];
-
-            // Find the block containing the value
-            current = block->next;
-            while (current)
-            {
-                // Check if the current block contains the value
-                for (unsigned int j = 0; j < current->vector.size(); j++)
-                {
-                    if (current->vector[j]->value == value)
+                    while (downBlock != nullptr)
                     {
-                        // Erase the node from the current block
-                        current->vector.erase(current->vector.begin() + j);
-
-                        // If the current block becomes empty, remove it
-                        if (current->vector.empty())
+                        current = downBlock->vector[0]->down;
+                        downBlock->vector.erase(downBlock->vector.begin());
+                        if (!downBlock->vector.empty())
                         {
-                            block->next = current->next;
-                            delete current;
-                            current = block->next;
+                            update[x]->vector.insert(update[x]->vector.end(), downBlock->vector.begin(), downBlock->vector.end());
+                            update[x]->next = update[x]->next->next;
+                            x++;
+                            // Print the update[x] block full content
+                            // for (int i = 0; i < update[x]->vector.size(); i++)
+                            // {
+                            //     cout << update[x]->vector[i]->value << " ";
+                            // }                            
                         }
-                        break;
+                        else
+                        {
+                            update[x]->next = update[x]->next->next;
+                            x++;
+                        }
+
+                        downBlock = current;
                     }
-                }
-                if (current)
-                {
-                    current = current->next;
                 }
             }
         }
     }
+
+    // void remove(int value)
+    // {
+    //     std::stack<Block *> blocks = getBlockStack(value);
+    //     Block *current;
+    //     Block *block;
+    //     vector<Block *> update;
+
+    //     // Traverse the levels to find the blocks containing the value
+    //     for (int i = levels.size() - 1; i >= 0; i--)
+    //     {
+    //         Block *pre = nullptr;
+    //         current = levels[i];
+    //         while (current)
+    //         {
+    //             for (int j = 0; j < current->vector.size(); j++)
+    //             {
+    //                 if (current->vector[j]->value == value)
+    //                 {
+    //                     if (pre)
+    //                     {
+    //                         update.push_back(pre);
+    //                     }
+    //                     break;
+    //                 }
+    //             }
+    //             pre = current;
+    //             current = current->next;
+    //         }
+    //     }
+
+    //     // Iterate over the blocks in the stack
+    //     while (!blocks.empty())
+    //     {
+    //         block = blocks.top();
+    //         blocks.pop();
+
+    //         // Iterate over the nodes in the block
+    //         for (unsigned int i = 0; i < block->vector.size(); i++)
+    //         {
+    //             // If the node contains the value to remove
+    //             if (block->vector[i]->value == value)
+    //             {
+    //                 // Erase the node from the block
+    //                 block->vector.erase(block->vector.begin() + i);
+    //             }
+    //         }
+    //     }
+
+    //     // Iterate over the update vector and adjust the structure
+    //     for (int i = 0; i < update.size(); i++)
+    //     {
+    //         // Iterate over the blocks in the update vector
+    //         block = update[i];
+
+    //         // Find the block containing the value
+    //         current = block->next;
+    //         while (current)
+    //         {
+    //             // Check if the current block contains the value
+    //             for (unsigned int j = 0; j < current->vector.size(); j++)
+    //             {
+    //                 if (current->vector[j]->value == value)
+    //                 {
+    //                     // Erase the node from the current block
+    //                     current->vector.erase(current->vector.begin() + j);
+
+    //                     // If the current block becomes empty, remove it
+    //                     if (current->vector.empty())
+    //                     {
+    //                         block->next = current->next;
+    //                         delete current;
+    //                         current = block->next;
+    //                     }
+    //                     break;
+    //                 }
+    //             }
+    //             if (current)
+    //             {
+    //                 current = current->next;
+    //             }
+    //         }
+    //     }
+    // }
 
     void print_list()
     {
