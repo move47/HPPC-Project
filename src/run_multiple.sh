@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in {1..5}
+for i in {0..5}
 do
     echo "Iteration $i"
     power_of_two=$((2**i))

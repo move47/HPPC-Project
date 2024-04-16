@@ -227,23 +227,29 @@ void insertElements(BSkipList<T> &b_skip_list, int start, int end){
 int main(int argc, char* argv[]){
     srand(time(0));
     int num_threads = stoi(argv[1]);
+
     std::cout<< "Number of threads: " << num_threads << std::endl;
     
-    BSkipList<int> b_skip_list(500);
+    BSkipList<int> b_skip_list(50);
     
     vector<thread> threads;
     auto start = std::chrono::high_resolution_clock::now();
+    int num_inserts = 3200000;
+    int inserts_per_thread = ceil(num_inserts/num_threads);
     for(int i = 0; i < num_threads; i++){
-        threads.push_back(thread(insertElements<int>, ref(b_skip_list), 100000*i, (i+1)*100000));
+        threads.push_back(thread(insertElements<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
     }
+    // for(int i = 0; i < num_threads; i++){
+    //     threads.push_back(thread(insertElements<int>, ref(b_skip_list), 10000*i, (i+1)*10000));
+    // }
 
     for(int i = 0; i < num_threads; i++){
         threads[i].join();
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
-    
-    cout << "Time taken to insert 3200000 elements: " << elapsed_seconds.count() << "s\n";
+    //b_skip_list.print();
+    cout << "Time taken to insert all elements: " << elapsed_seconds.count() << "s\n";
 
     // int a[1000000];
     // for(int i=0;i<1000000;i++){
