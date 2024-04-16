@@ -17,6 +17,7 @@ BSkipList<T>::BSkipList(int max_levels){
     Block<T>* prev_block = nullptr;
     this->num_levels = max_levels;
     this->levels = vector<Block<T>*>(max_levels);
+    this->mutexVec = vector<std::mutex>(max_levels);
 
     for ( int i = max_levels - 1; i >= 0; i-- ) {
         Block<T> *block = new Block<T>(new Node<T>(INT_MIN, 0, nullptr), nullptr); // negative infinity block

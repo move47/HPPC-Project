@@ -2,13 +2,14 @@
 #include "block.h"
 #include <vector>
 #include <utility>
-
+#include <mutex>
 template<typename T>
 class BSkipList
 {
 private:
     // Stores the head block at each level
     std::vector<Block<T> *> levels;
+    std::vector<std::mutex> mutexVec;
     // Stores the number of levels
     int num_levels = 0;
 
