@@ -217,24 +217,27 @@ std::vector<int> BSkipList<T>::getAverageSize(){
 template<typename T>
 void insertElements(BSkipList<T> &b_skip_list, int start, int end){
     for(int i = start; i < end; i++){
-        // b_skip_list.print();
+        //b_skip_list.print();
         b_skip_list.insert(i, i);
-        // b_skip_list.print();
+        //b_skip_list.print();
         //cout<<"inserting "<<i<<endl;
     }
 }
 
-int main(){
+int main(int argc, char* argv[]){
     srand(time(0));
-    BSkipList<int> b_skip_list(50);
-
-    auto start = std::chrono::high_resolution_clock::now();
+    int num_threads = stoi(argv[1]);
+    std::cout<< "Number of threads: " << num_threads << std::endl;
+    
+    BSkipList<int> b_skip_list(500);
+    
     vector<thread> threads;
-    for(int i = 0; i < 32; i++){
+    auto start = std::chrono::high_resolution_clock::now();
+    for(int i = 0; i < num_threads; i++){
         threads.push_back(thread(insertElements<int>, ref(b_skip_list), 100000*i, (i+1)*100000));
     }
 
-    for(int i = 0; i < 32; i++){
+    for(int i = 0; i < num_threads; i++){
         threads[i].join();
     }
     auto end = std::chrono::high_resolution_clock::now();
