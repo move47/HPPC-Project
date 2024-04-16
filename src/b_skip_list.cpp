@@ -46,18 +46,14 @@ void BSkipList<T>::insert(int key, T value){
         num_flips++;
     }
 
-    int current_level = levels.size() - 1;
-    mutexVec[current_level].lock();
+    int max_level = levels.size() - 1;
+    mutexVec[max_level].lock();
     Block<T>* greatest_min_block = levels[levels.size() - 1];
     bool first_insert = false;
     Node<T>* parent = nullptr;
     for ( int l = levels.size() - 1; l >= 0; l-- ) {
-        if ( l>0 ) {
-            // if ( l < levels.size() - 1)
-            //     mutexVec[l + 1].unlock();
-            //cout<<"Acquiring lock for level "<<l-1<<endl;
+        if ( l > 0 )
             mutexVec[l-1].lock();
-        }
         if ( l > num_flips ) {
             Block<T>* curr_block = greatest_min_block;
             int size = curr_block->nodes.size();
@@ -71,7 +67,6 @@ void BSkipList<T>::insert(int key, T value){
             }
         }   
         else {
-            //cout<<"coming in else"<<endl;
             Block<T>* curr_block = greatest_min_block;
 
             int insert_index = curr_block->nodes.size();
@@ -103,11 +98,10 @@ void BSkipList<T>::insert(int key, T value){
                 parent = new_node;
             }
         }
-        cout<<"Releasing lock for level "<<l<<endl;
-        mutexVec[l].unlock();
+        if ( l < max_level )
+            mutexVec[l + 1].unlock();
     }
-    //mutexVec[0].unlock();
-    //mutexVec[1].unlock();
+    mutexVec[0].unlock();
 }
 
 // Remove a key-value pair
@@ -223,9 +217,9 @@ std::vector<int> BSkipList<T>::getAverageSize(){
 template<typename T>
 void insertElements(BSkipList<T> &b_skip_list, int start, int end){
     for(int i = start; i < end; i++){
-        b_skip_list.print();
+        // b_skip_list.print();
         b_skip_list.insert(i, i);
-        b_skip_list.print();
+        // b_skip_list.print();
         //cout<<"inserting "<<i<<endl;
     }
 }
@@ -234,15 +228,19 @@ int main(){
     srand(time(0));
     BSkipList<int> b_skip_list(50);
 
+    auto start = std::chrono::high_resolution_clock::now();
     vector<thread> threads;
-    for(int i = 0; i < 5; i++){
-        threads.push_back(thread(insertElements<int>, ref(b_skip_list), 10*i, (i+1)*10));
+    for(int i = 0; i < 32; i++){
+        threads.push_back(thread(insertElements<int>, ref(b_skip_list), 100000*i, (i+1)*100000));
     }
 
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < 32; i++){
         threads[i].join();
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
     
+    cout << "Time taken to insert 3200000 elements: " << elapsed_seconds.count() << "s\n";
 
     // int a[1000000];
     // for(int i=0;i<1000000;i++){
@@ -256,5 +254,5 @@ int main(){
     // for(int i = 0; i < 1000000; i++){
     //     b_skip_list.remove(a[i]);
     // }
-    b_skip_list.print();
+    // b_skip_list.print();
 }
