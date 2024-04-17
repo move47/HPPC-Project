@@ -339,11 +339,21 @@ int main(int argc, char* argv[]){
     srand(time(0));
     int num_threads = stoi(argv[1]);
 
-    std::cout<< "Number of threads: " << num_threads << std::endl;
-    
-    strong_scaling(num_threads);
-    
-    weak_scaling(num_threads);
-    return 0;
 
+    // take the extra character argument and store into a variable
+    char c = ' ';
+    if(argc > 2)
+        c = argv[2][0];
+    else
+        c = ' ';
+
+    std::cout<< "Number of threads: " << num_threads << std::endl;
+    if(c == 's')
+    strong_scaling(num_threads);
+    else if(c == 'w')
+    weak_scaling(num_threads);
+    else
+    cout << "No scaling argument provided";
+    
+    return 0;
 }
