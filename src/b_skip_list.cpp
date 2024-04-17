@@ -247,47 +247,8 @@ std::vector<int> BSkipList<T>::getAverageSize(){
     // Get average size implementation
     return vector<int>();
 }
-template<typename T>
-void insertElements(BSkipList<T> &b_skip_list, int start, int end){
-    for(int i = start; i < end; i++){
-        //b_skip_list.print();
-        b_skip_list.insert(i, i);
-        b_skip_list.remove(i + 3);
-        //b_skip_list.print();
-        //cout<<"inserting "<<i<<endl;
-    }
-}
-
-template<typename T>
-void searchElements(BSkipList<T> &b_skip_list, int start, int end){
-    for(int i = start; i < end; i++){
-        //b_skip_list.print();
-        T search_info = b_skip_list.search(i);
-        // cout << search_info << endl;
-        // if (search_info.first == nullptr)
-        // {
-        //     cout << "Key not found" << endl;
-        // }
-        // else{
-        //     mutexVec[search_info.second.second].unlock();
-        //     cout << "Key found" << endl;
-        // }
-        //cout<<"searching "<<i<<endl;
-    }
-}
-
-template<typename T>
-void removeElements(BSkipList<T> &b_skip_list, int start, int end){
-    for(int i = start; i < end; i++){
-        //b_skip_list.print();
-        b_skip_list.remove(i);
-        //b_skip_list.print();
-        //cout<<"removing "<<i<<endl;
-    }
-}
 
 vector<pair<int,int>> load;
-
 template<typename T>
 void process_operation(BSkipList<T> &b_skip_list, int start, int end){
     for(int i = start; i < end; i++){
@@ -316,69 +277,73 @@ void generateRandomPairs(vector<pair<int,int>>&random_pairs, int n){
     // shuffle the pairs
     random_shuffle(random_pairs.begin(), random_pairs.end());
 }
-int main(int argc, char* argv[]){
-    srand(time(0));
-    int num_threads = stoi(argv[1]);
 
-    std::cout<< "Number of threads: " << num_threads << std::endl;
-    
+void strong_scaling(int num_threads){
+    // keep the load constant
+
     BSkipList<int> b_skip_list(50);
     
     vector<thread> threads;
-    auto start = std::chrono::high_resolution_clock::now();
-    int num_inserts = 3200000;
     
-    generateRandomPairs(load, num_inserts);
-    // print the load
-    // for(int i = 0; i < num_inserts; i++){
-    //     cout << load[i].first << " " << load[i].second << endl;
-    // }
-    //int inserts_per_thread = int(num_inserts/num_threads);
-    int inserts_per_thread = int(load.size()/num_threads);
-    // for(int i = 0; i < num_threads; i++){
-    //     threads.push_back(thread(insertElements<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
-    // }
-    for(int i = 0; i < num_threads; i++){
-        threads.push_back(thread(process_operation<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
-    }
-    // for(int i = 0; i < num_threads; i++){
-    //     threads.push_back(thread(insertElements<int>, ref(b_skip_list), 10000*i, (i+1)*10000));
-    // }
-    // for(int i = 0; i < num_threads; i++){
-    //     threads.push_back(thread(searchElements<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
-    // }
+    
+    int num_operations = 3200000;
+    
+    // clear load
+    load.clear();
+    generateRandomPairs(load, num_operations);
 
-    // for(int i = 0; i < num_threads; i++){
-    //     threads.push_back(thread(removeElements<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
-    // }
+    int num_operations_per_thread = int(load.size()/num_threads);
+
+    auto start = std::chrono::high_resolution_clock::now();
+    for(int i = 0; i < num_threads; i++){
+        threads.push_back(thread(process_operation<int>, ref(b_skip_list), i*num_operations_per_thread, (i+1)*num_operations_per_thread));
+    }
 
     for(int i = 0; i < (int)threads.size(); i++){
         threads[i].join();
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
-    //std::pair<Block<int>*, pair<int,int>> search_info = b_skip_list.search(-10);
-    // b_skip_list.print();
-    // if (search_info.first == nullptr)
-    // {
-    //     cout << "Key not found" << endl;
-    // }
-    // else{
-    //     cout << "Key found" << endl;
-    // }
-    cout << "Time taken to insert all elements: " << elapsed_seconds.count() << "s\n";
+    cout << "Time taken for strong scaling " << elapsed_seconds.count() << "s\n";
+}
 
-    // int a[1000000];
-    // for(int i=0;i<1000000;i++){
-    //     a[i] = i;
-    // }
-    // random_shuffle(a, a + 1000000);
-    // for(int i = 0; i < 1000000; i++){
-    //     b_skip_list.insert(a[i], a[i]);
-    // }
-    // random_shuffle(a, a + 1000000);
-    // for(int i = 0; i < 1000000; i++){
-    //     b_skip_list.remove(a[i]);
-    // }
-    // b_skip_list.print();
+void weak_scaling(int num_threads)
+{
+    // keep increasing the load along with threads
+    BSkipList<int> b_skip_list(50);
+    vector<thread> threads;
+
+    int num_operations = num_threads*100000;
+
+    // clear load
+    load.clear();
+    generateRandomPairs(load, num_operations);
+
+    int num_operations_per_thread = int(load.size()/num_threads);
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    for(int i = 0; i < num_threads; i++){
+        threads.push_back(thread(process_operation<int>, ref(b_skip_list), i*num_operations_per_thread, (i+1)*num_operations_per_thread));
+    }
+
+    for(int i = 0; i < (int)threads.size(); i++){
+        threads[i].join();
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    cout << "Time taken for weak scaling " << elapsed_seconds.count() << "s\n";
+}
+
+int main(int argc, char* argv[]){
+    srand(time(0));
+    int num_threads = stoi(argv[1]);
+
+    std::cout<< "Number of threads: " << num_threads << std::endl;
+    
+    strong_scaling(num_threads);
+    
+    weak_scaling(num_threads);
+    return 0;
+
 }
