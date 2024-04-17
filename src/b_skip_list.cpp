@@ -108,25 +108,40 @@ void BSkipList<T>::insert(int key, T value){
 template<typename T>
 void BSkipList<T>::remove(int key){
 
-   std::pair<Block<T>*, pair<int,int>> search_info = this->search(key);
+    // cout << "Removing key: " << key << endl;
+
+    std::pair<Block<T>*, pair<int,int>> search_info = this->searchHelper(key);
     if (search_info.first == nullptr)
+    {
+        // cout << "Key not found" << endl;
         return;
+    }
     
+
     Block<T>* greatest_min_block = search_info.first;
     int found_index = search_info.second.first;
     int current_level = search_info.second.second;
 
+    // cout << "Key found at level" << current_level << endl;
     Block<T>* curr_block = greatest_min_block;
     // reading the next level stuff, so need to lock it also
-    mutexVec[current_level - 1].lock();
+    if ( current_level > 0 )
+        mutexVec[current_level - 1].lock();
     Block<T>* next_level_prev = curr_block->nodes[found_index - 1]->down;
     Block<T>* next_level_self = curr_block->nodes[found_index]->down;
 
     curr_block->nodes.erase(curr_block->nodes.begin() + found_index);
 
     curr_block = next_level_self;
-
+    bool first = false;
     while ( curr_block != nullptr ) {
+        if(!first) {
+            first=true;
+        }
+        else{
+            if ( current_level > 0 )
+                mutexVec[current_level - 1].lock();
+        }
         next_level_self = curr_block->nodes[0]->down;
         Block<T>* curr_level_prev = next_level_prev;
         next_level_prev = curr_level_prev->nodes.back()->down;
@@ -135,12 +150,15 @@ void BSkipList<T>::remove(int key){
         curr_level_prev->next = curr_level_prev->next->next;
         delete curr_block;
         curr_block = next_level_self;
+        mutexVec[current_level].unlock();
+        current_level--;
     }
+    mutexVec[current_level].unlock();
 }
 
 // Search for a key
 template<typename T>
-pair<Block<T>*, pair<int,int>> BSkipList<T>::search(int key){
+pair<Block<T>*, pair<int,int>> BSkipList<T>::searchHelper(int key){
     
     int current_level = levels.size() - 1;
     // lock this level
@@ -168,7 +186,8 @@ pair<Block<T>*, pair<int,int>> BSkipList<T>::search(int key){
         }
         else {
             // lock the down level first 
-            mutexVec[current_level-1].lock();
+            if ( current_level > 0 )
+                mutexVec[current_level-1].lock();
             greatest_min_block = curr_block->nodes[index]->down;
             
         }
@@ -177,10 +196,24 @@ pair<Block<T>*, pair<int,int>> BSkipList<T>::search(int key){
     }
 
     if ( found_index == -1 ) {
-        cout << "Key not found" << endl;
-        return {nullptr, -1, -1};
+        // cout << "Key not found" << endl;
+        if(current_level > 0)
+            mutexVec[current_level].unlock();
+        return {nullptr, {-1, -1}};
     }
-    return {greatest_min_block, found_index, current_level}; 
+    return {greatest_min_block, {found_index, current_level}}; 
+}
+
+template<typename T>
+T BSkipList<T>::search(int key){
+    std::pair<Block<T>*, pair<int,int>> search_info = this->searchHelper(key);
+    if (search_info.first == nullptr)
+    {
+        // cout << "Key not found" << endl;
+        return T();
+    }
+    mutexVec[search_info.second.second].unlock();
+    return search_info.first->nodes[search_info.second.first]->get_value();
 }
 
 // TODO : Implement range query
@@ -219,11 +252,70 @@ void insertElements(BSkipList<T> &b_skip_list, int start, int end){
     for(int i = start; i < end; i++){
         //b_skip_list.print();
         b_skip_list.insert(i, i);
+        b_skip_list.remove(i + 3);
         //b_skip_list.print();
         //cout<<"inserting "<<i<<endl;
     }
 }
 
+template<typename T>
+void searchElements(BSkipList<T> &b_skip_list, int start, int end){
+    for(int i = start; i < end; i++){
+        //b_skip_list.print();
+        T search_info = b_skip_list.search(i);
+        // cout << search_info << endl;
+        // if (search_info.first == nullptr)
+        // {
+        //     cout << "Key not found" << endl;
+        // }
+        // else{
+        //     mutexVec[search_info.second.second].unlock();
+        //     cout << "Key found" << endl;
+        // }
+        //cout<<"searching "<<i<<endl;
+    }
+}
+
+template<typename T>
+void removeElements(BSkipList<T> &b_skip_list, int start, int end){
+    for(int i = start; i < end; i++){
+        //b_skip_list.print();
+        b_skip_list.remove(i);
+        //b_skip_list.print();
+        //cout<<"removing "<<i<<endl;
+    }
+}
+
+vector<pair<int,int>> load;
+
+template<typename T>
+void process_operation(BSkipList<T> &b_skip_list, int start, int end){
+    for(int i = start; i < end; i++){
+        if(load[i].first==0)
+        {
+            b_skip_list.insert(load[i].second, load[i].second);
+        }
+        else if(load[i].first==1)
+        {
+            b_skip_list.search(load[i].second);
+        }
+        else
+        {
+            b_skip_list.remove(load[i].second);
+        
+        }
+    }
+}
+
+void generateRandomPairs(vector<pair<int,int>>&random_pairs, int n){
+    for(int i = 0; i < n; i++){
+        random_pairs.push_back({0, i});
+        random_pairs.push_back({1, i});
+        random_pairs.push_back({2, i});
+    }
+    // shuffle the pairs
+    random_shuffle(random_pairs.begin(), random_pairs.end());
+}
 int main(int argc, char* argv[]){
     srand(time(0));
     int num_threads = stoi(argv[1]);
@@ -235,20 +327,45 @@ int main(int argc, char* argv[]){
     vector<thread> threads;
     auto start = std::chrono::high_resolution_clock::now();
     int num_inserts = 3200000;
-    int inserts_per_thread = ceil(num_inserts/num_threads);
+    
+    generateRandomPairs(load, num_inserts);
+    // print the load
+    // for(int i = 0; i < num_inserts; i++){
+    //     cout << load[i].first << " " << load[i].second << endl;
+    // }
+    //int inserts_per_thread = int(num_inserts/num_threads);
+    int inserts_per_thread = int(load.size()/num_threads);
+    // for(int i = 0; i < num_threads; i++){
+    //     threads.push_back(thread(insertElements<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
+    // }
     for(int i = 0; i < num_threads; i++){
-        threads.push_back(thread(insertElements<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
+        threads.push_back(thread(process_operation<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
     }
     // for(int i = 0; i < num_threads; i++){
     //     threads.push_back(thread(insertElements<int>, ref(b_skip_list), 10000*i, (i+1)*10000));
     // }
+    // for(int i = 0; i < num_threads; i++){
+    //     threads.push_back(thread(searchElements<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
+    // }
 
-    for(int i = 0; i < num_threads; i++){
+    // for(int i = 0; i < num_threads; i++){
+    //     threads.push_back(thread(removeElements<int>, ref(b_skip_list), i*inserts_per_thread, (i+1)*inserts_per_thread));
+    // }
+
+    for(int i = 0; i < (int)threads.size(); i++){
         threads[i].join();
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
-    //b_skip_list.print();
+    //std::pair<Block<int>*, pair<int,int>> search_info = b_skip_list.search(-10);
+    // b_skip_list.print();
+    // if (search_info.first == nullptr)
+    // {
+    //     cout << "Key not found" << endl;
+    // }
+    // else{
+    //     cout << "Key found" << endl;
+    // }
     cout << "Time taken to insert all elements: " << elapsed_seconds.count() << "s\n";
 
     // int a[1000000];
