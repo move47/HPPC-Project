@@ -3,6 +3,7 @@
 #include "node.cpp"
 #include "kv.cpp"
 // #include "kv.h"
+#include <chrono>
 #include<list>
 #include<climits>
 #include<algorithm>
@@ -204,17 +205,56 @@ std::vector<int> BSkipList<T>::getAverageSize(){
 int main(){
     srand(time(0));
     BSkipList<int> b_skip_list(50);
-    int a[1000000];
-    for(int i=0;i<1000000;i++){
+    // int a[3200000];
+    // for(int i=0;i<3200000;i++){
+    //     a[i] = i;
+    // }
+    // random_shuffle(a, a + 3200000);
+    // auto start = std::chrono::high_resolution_clock::now();
+    // for(int i = 0; i < 3200000; i++){
+    //     b_skip_list.insert(a[i], a[i]);
+    // }
+    // auto end = std::chrono::high_resolution_clock::now();
+    // std::chrono::duration<double> elapsed_seconds = end-start;
+    // std::cout << "Time taken to insert 3200000 elements: " << elapsed_seconds.count() << "s\n";
+
+    // random_shuffle(a, a + 3200000);
+    // start = std::chrono::high_resolution_clock::now();
+    // for(int i = 0; i < 3200000; i++){
+    //     b_skip_list.search(a[i]);
+    // }
+    // end = std::chrono::high_resolution_clock::now();
+    // elapsed_seconds = end-start;
+    // std::cout << "Time taken to search 3200000 elements: " << elapsed_seconds.count() << "s\n";
+    
+    // random_shuffle(a, a + 3200000);
+    // start = std::chrono::high_resolution_clock::now();
+    // for(int i = 0; i < 3200000; i++){
+    //     b_skip_list.remove(a[i]);
+    // }
+    // end = std::chrono::high_resolution_clock::now();
+    // elapsed_seconds = end-start;
+    // std::cout << "Time taken to remove 3200000 elements: " << elapsed_seconds.count() << "s\n";
+
+    int a[50];
+    for(int i=0;i<50;i++){
         a[i] = i;
     }
-    random_shuffle(a, a + 1000000);
-    for(int i = 0; i < 1000000; i++){
+    random_shuffle(a, a + 50);
+    for(int i = 0; i < 50; i++){
+        if(a[i] == 23)
+            continue;
         b_skip_list.insert(a[i], a[i]);
     }
-    random_shuffle(a, a + 1000000);
-    for(int i = 0; i < 1000000; i++){
-        b_skip_list.remove(a[i]);
-    }
+    cout << "List before entering 23" << endl;
     b_skip_list.print();
+
+    b_skip_list.insert(23, 23);
+    cout << "List after entering 23" << endl;
+    b_skip_list.print();
+
+    b_skip_list.remove(12);
+    cout << "List after removing 12" << endl;
+    b_skip_list.print();
+
 }

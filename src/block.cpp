@@ -54,3 +54,13 @@ void Block<T>::set_next(Block<T> *next)
 {
     this->next = next;
 }
+
+template<typename T>
+void Block<T>::lock(){
+    this->block_lock.lock();
+}
+
+template<typename T>
+void Block<T>::unlock(){
+    this->block_lock.unlock();
+}
