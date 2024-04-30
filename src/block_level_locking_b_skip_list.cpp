@@ -228,9 +228,9 @@ void BSkipList<T>::remove(int key){
         curr_block->nodes.erase(curr_block->nodes.begin());
         curr_level_prev->nodes.insert(curr_level_prev->nodes.end(), curr_block->nodes.begin(), curr_block->nodes.end());
         curr_level_prev->next = curr_level_prev->next->next;
-        if(curr_level_prev->next != nullptr){
-            curr_level_prev->next->unlock();
-        }
+        // if(curr_level_prev->next != nullptr){
+        //     curr_level_prev->next->unlock();
+        // }
         delete curr_block;
         curr_level_prev->unlock();
         curr_block = next_level_self;

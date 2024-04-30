@@ -10,11 +10,15 @@
 #include<thread>
 #include<vector>
 #include<utility>
+#include <cmath>
 
 
 using namespace std;
 int insertions = 0;
 int deletions = 0;
+
+std::hash<int> hasher; // Create a hasher object for ints
+    // size_t hashValue = hasher(myInt);
 // int a[3200000];
 // int b[3200000];
 // int removed_elements = 0;
@@ -45,13 +49,16 @@ BSkipList<T>::~BSkipList(){
 template<typename T>
 void BSkipList<T>::insert(int key, T value){
     int locks = 0;
-    srand(key);
+    // srand(key);
+    size_t hash_value = hasher(key);
 
     int num_flips = 0;
-    while (num_flips < this->num_levels && rand() % 2 == 0) {
+    while (num_flips < this->num_levels - 2 && hash_value % size_t(pow(2, num_flips + 1)) == 0) {
         num_flips++;
+        
     }
 
+    // cout << "num_flips: " << num_flips << endl;
     Block<T>* greatest_min_block = levels[levels.size() - 1];
     if(num_flips == int(levels.size() - 1))
         greatest_min_block -> w_lock();
@@ -299,10 +306,28 @@ pair<Block<T>*, int> BSkipList<T>::search(int key){
 // Search for erasing a key
 template<typename T>
 pair<Block<T>*, int> BSkipList<T>::search_erase(int key){
-    levels[levels.size() - 1]->w_lock();
-    Block<T>* greatest_min_block = levels[levels.size() - 1];
+    size_t hash_value = hasher(key);
+
+    int num_flips = 0;
+    while (num_flips < this->num_levels - 2 && hash_value % size_t(pow(2, num_flips + 1)) == 0) {
+        num_flips++;
+        
+    }
+
+    int l = levels.size() - 1;
+
+    if(l == num_flips){
+        levels[l]->w_lock();
+    }
+    else{
+        levels[l]->r_lock();
+    }
+    // levels[l]->w_lock();
+    Block<T>* greatest_min_block = levels[l];
     bool found = false;
     int found_index = -1;
+
+    // cout << "Deleting key: " << key << endl;
 
     while ( !found && greatest_min_block != nullptr ) {
         int size = greatest_min_block->nodes.size();
@@ -323,16 +348,24 @@ pair<Block<T>*, int> BSkipList<T>::search_erase(int key){
             break;
         }
         else {
+            if(l == num_flips)
+                break;
             if(curr_block->nodes[index]->down != nullptr){
-                curr_block->nodes[index]->down->w_lock();
+                if(l - 1 == num_flips)
+                    curr_block->nodes[index]->down->w_lock();
+                else
+                    curr_block->nodes[index]->down->r_lock();
+                // curr_block->nodes[index]->down->w_lock();
             }
             greatest_min_block = curr_block->nodes[index]->down;
-            curr_block->w_unlock();
+            curr_block->r_unlock();
         }
+        l--;
     }
 
     if ( found_index == -1 ) {
         // cout << "Key not found" << endl;
+        greatest_min_block -> w_unlock();
         return {nullptr, -1};
     }
     return {greatest_min_block, found_index}; 
