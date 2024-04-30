@@ -25,7 +25,7 @@
 *.la
 *.a
 *.lib
-
+*src/ore
 # Executables
 *.exe
 *.out

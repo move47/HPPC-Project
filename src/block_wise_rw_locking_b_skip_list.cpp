@@ -13,7 +13,8 @@
 
 
 using namespace std;
-
+int insertions = 0;
+int deletions = 0;
 // int a[3200000];
 // int b[3200000];
 // int removed_elements = 0;
@@ -52,8 +53,11 @@ void BSkipList<T>::insert(int key, T value){
     }
 
     Block<T>* greatest_min_block = levels[levels.size() - 1];
-    greatest_min_block -> lock();
-    locks++;
+    if(num_flips == int(levels.size() - 1))
+        greatest_min_block -> w_lock();
+    else
+        greatest_min_block -> r_lock();
+    // locks++;
     bool first_insert = false;
     Node<T>* parent = nullptr;
     Block<T>* parent_block = nullptr;
@@ -75,7 +79,7 @@ void BSkipList<T>::insert(int key, T value){
                 }
             }
             if(parent_block != nullptr){
-                parent_block -> unlock();
+                parent_block -> r_unlock();
                 // if(parent_block -> block_lock.try_lock()){
                 //     // printf("Mutes was not locked \n");
                 //     parent_block -> unlock();
@@ -88,8 +92,16 @@ void BSkipList<T>::insert(int key, T value){
             parent_block = curr_block;
 
             if(greatest_min_block != nullptr){
-                greatest_min_block->lock();
-                locks++;
+                if(l - 1 == num_flips){
+                    greatest_min_block -> w_lock();
+                    // locks++;
+                }
+                else{
+                    greatest_min_block -> r_lock();
+                    // locks++;
+                }
+                // greatest_min_block->lock();
+                // locks++;
             }
             
             // printf("Current number of locks at level %d is %d\n", l, locks);
@@ -112,8 +124,9 @@ void BSkipList<T>::insert(int key, T value){
             if ( !first_insert ) {
                 Node<T>* new_node = new Node<T>(key, value, nullptr);
                 curr_block->nodes.insert(curr_block->nodes.begin() + insert_index, new_node);
+                insertions++;
                 parent = new_node;
-                parent_block -> unlock();
+                parent_block -> r_unlock();
                 // if(parent_block -> block_lock.try_lock()){
                 //     // printf("Mutes was not locked \n");
                 //     parent_block -> unlock();
@@ -132,11 +145,11 @@ void BSkipList<T>::insert(int key, T value){
                 vector<Node<T>*> right_block_nodes = vector<Node<T>*>(curr_block->nodes.begin() + insert_index, curr_block->nodes.end());
                 curr_block->nodes.resize(insert_index);
                 Block<T>* new_block_right = new Block<T>(right_block_nodes, curr_block->next);
-                new_block_right->lock();
+                new_block_right->w_lock();
                 locks++;
                 curr_block->next = new_block_right;
                 parent->down = new_block_right;
-                parent_block -> unlock();
+                parent_block -> w_unlock();
                 // if(parent_block -> block_lock.try_lock()){
                 //     // printf("Mutes was not locked \n");
                 //     parent_block -> unlock();
@@ -147,7 +160,7 @@ void BSkipList<T>::insert(int key, T value){
                 // }
 
                 if(uncle_block != nullptr){
-                    uncle_block -> unlock();
+                    uncle_block -> w_unlock();
                     // if(uncle_block -> block_lock.try_lock()){
                     //     // printf("Mutes was not locked \n");
                     //     uncle_block -> unlock();
@@ -163,7 +176,7 @@ void BSkipList<T>::insert(int key, T value){
                 parent = new_node;
             }
             if(curr_block->nodes[insert_index - 1]->down != nullptr){
-                curr_block->nodes[insert_index - 1]->down->lock();
+                curr_block->nodes[insert_index - 1]->down->w_lock();
                 locks++;
             }
             greatest_min_block = curr_block->nodes[insert_index - 1]->down;
@@ -172,11 +185,11 @@ void BSkipList<T>::insert(int key, T value){
         // printf("Current number of locks %d\n", locks);
     }
     if(curr_block != nullptr){
-        curr_block->unlock();
+        curr_block->w_unlock();
         locks--;
     }
     if(uncle_block != nullptr){
-        uncle_block->unlock();
+        uncle_block->w_unlock();
         locks--;
     }
     // printf("Current number of locks are %d for insert %d\n", locks, key);
@@ -186,7 +199,7 @@ void BSkipList<T>::insert(int key, T value){
 template<typename T>
 void BSkipList<T>::remove(int key){
 
-    pair<Block<T>*, int> search_info = this->search(key);
+    pair<Block<T>*, int> search_info = this->search_erase(key);
     if ( search_info.first == nullptr )
         return;
     
@@ -195,12 +208,12 @@ void BSkipList<T>::remove(int key){
 
     Block<T>* curr_block = greatest_min_block;
     if(curr_block->nodes[found_index - 1]->down != nullptr){
-        curr_block->nodes[found_index - 1]->down->lock();
+        curr_block->nodes[found_index - 1]->down->w_lock();
     }
     if(curr_block->nodes[found_index]->down != nullptr){
-        curr_block->nodes[found_index]->down->lock();
-        // if(curr_block->nodes[found_index]->down-> next != nullptr){
-        //     curr_block->nodes[found_index]->down->next->lock();
+        curr_block->nodes[found_index]->down->w_lock();
+        // if(curr_block->nodes[found_index]->down->next != nullptr){
+        //     curr_block->nodes[found_index]->down->next->r_lock();
         // }
     }
     
@@ -208,31 +221,32 @@ void BSkipList<T>::remove(int key){
     Block<T>* next_level_self = curr_block->nodes[found_index]->down;
 
     curr_block->nodes.erase(curr_block->nodes.begin() + found_index);
-    curr_block -> unlock();
+    deletions++;
+    curr_block -> w_unlock();
     curr_block = next_level_self;
 
     while ( curr_block != nullptr ) {
         if(curr_block->nodes[0]->down != nullptr){
-            curr_block->nodes[0]->down->lock();
+            curr_block->nodes[0]->down->w_lock();
             // if(curr_block->nodes[0]->down-> next != nullptr){
-            //     curr_block->nodes[0]->down->next->lock();
+            //     curr_block->nodes[0]->down->next->r_lock();
             // }
         }
         
         next_level_self = curr_block->nodes[0]->down;
         Block<T>* curr_level_prev = next_level_prev;
         if(curr_level_prev->nodes.back()->down != nullptr){
-            curr_level_prev->nodes.back()->down->lock();
+            curr_level_prev->nodes.back()->down->w_lock();
         }
         next_level_prev = curr_level_prev->nodes.back()->down;
         curr_block->nodes.erase(curr_block->nodes.begin());
         curr_level_prev->nodes.insert(curr_level_prev->nodes.end(), curr_block->nodes.begin(), curr_block->nodes.end());
         curr_level_prev->next = curr_level_prev->next->next;
-        if(curr_level_prev->next != nullptr){
-            curr_level_prev->next->unlock();
-        }
+        // if(curr_level_prev->next != nullptr){
+        //     curr_level_prev->next->r_unlock();
+        // }
         delete curr_block;
-        curr_level_prev->unlock();
+        curr_level_prev->w_unlock();
         curr_block = next_level_self;
     }
 
@@ -243,7 +257,7 @@ void BSkipList<T>::remove(int key){
 // Search for a key
 template<typename T>
 pair<Block<T>*, int> BSkipList<T>::search(int key){
-    levels[levels.size() - 1]->lock();
+    levels[levels.size() - 1]->r_lock();
     Block<T>* greatest_min_block = levels[levels.size() - 1];
     bool found = false;
     int found_index = -1;
@@ -268,10 +282,52 @@ pair<Block<T>*, int> BSkipList<T>::search(int key){
         }
         else {
             if(curr_block->nodes[index]->down != nullptr){
-                curr_block->nodes[index]->down->lock();
+                curr_block->nodes[index]->down->r_lock();
             }
             greatest_min_block = curr_block->nodes[index]->down;
-            curr_block->unlock();
+            curr_block->r_unlock();
+        }
+    }
+
+    if ( found_index == -1 ) {
+        // cout << "Key not found" << endl;
+        return {nullptr, -1};
+    }
+    return {greatest_min_block, found_index}; 
+}
+
+// Search for erasing a key
+template<typename T>
+pair<Block<T>*, int> BSkipList<T>::search_erase(int key){
+    levels[levels.size() - 1]->w_lock();
+    Block<T>* greatest_min_block = levels[levels.size() - 1];
+    bool found = false;
+    int found_index = -1;
+
+    while ( !found && greatest_min_block != nullptr ) {
+        int size = greatest_min_block->nodes.size();
+        Block<T>* curr_block = greatest_min_block;
+        int index = 0;
+        for ( int i = 0; i<size; i++ ) {
+            if ( key > curr_block->nodes[i]->get_key() ) {
+                index = i;
+            }
+            else {
+                break;
+            }
+        }
+
+        if ( index < size - 1 && key == curr_block->nodes[index + 1]->get_key() ) {
+            found = true;
+            found_index = index + 1;
+            break;
+        }
+        else {
+            if(curr_block->nodes[index]->down != nullptr){
+                curr_block->nodes[index]->down->w_lock();
+            }
+            greatest_min_block = curr_block->nodes[index]->down;
+            curr_block->w_unlock();
         }
     }
 
@@ -328,7 +384,7 @@ void process_operation(BSkipList<T> &b_skip_list, int start, int end){
             pair<Block<int>*, int> search_info = b_skip_list.search(load[i].second);
             if (search_info.first != nullptr)
             {
-                search_info.first->unlock();
+                search_info.first->r_unlock();
             }   
         }
         else
@@ -376,6 +432,9 @@ void strong_scaling(int num_threads){
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end-start;
     cout << "Time taken for strong scaling " << elapsed_seconds.count() << "s\n";
+    cout << "Number of elements inserted " << insertions << endl;   
+    cout << "Number of elements deleted " << deletions << endl;
+    cout << "Number of elements left " << insertions - deletions << endl;
 }
 
 void weak_scaling(int num_threads)

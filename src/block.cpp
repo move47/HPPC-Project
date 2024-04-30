@@ -64,3 +64,23 @@ template<typename T>
 void Block<T>::unlock(){
     this->block_lock.unlock();
 }
+
+template<typename T>
+void Block<T>::r_lock(){
+    this->rwLock.readLock();
+}
+
+template<typename T>
+void Block<T>::r_unlock(){
+    this->rwLock.readUnlock();
+}
+
+template<typename T>
+void Block<T>::w_lock(){
+    this->rwLock.writeLock();
+}
+
+template<typename T>
+void Block<T>::w_unlock(){
+    this->rwLock.writeUnlock();
+}
