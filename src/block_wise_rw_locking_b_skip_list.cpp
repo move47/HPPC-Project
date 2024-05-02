@@ -264,8 +264,18 @@ void BSkipList<T>::remove(int key){
 // Search for a key
 template<typename T>
 pair<Block<T>*, int> BSkipList<T>::search(int key){
-    levels[levels.size() - 1]->r_lock();
-    Block<T>* greatest_min_block = levels[levels.size() - 1];
+    size_t hash_value = hasher(key);
+
+    int num_flips = 0;
+    while (num_flips < this->num_levels - 2 && hash_value % size_t(pow(2, num_flips + 1)) == 0) {
+        num_flips++;
+        
+    }
+
+    int l = levels.size() - 1;
+
+    levels[l]->r_lock();
+    Block<T>* greatest_min_block = levels[l];
     bool found = false;
     int found_index = -1;
 
@@ -288,16 +298,20 @@ pair<Block<T>*, int> BSkipList<T>::search(int key){
             break;
         }
         else {
+            if(l == num_flips)
+                break;
             if(curr_block->nodes[index]->down != nullptr){
                 curr_block->nodes[index]->down->r_lock();
             }
             greatest_min_block = curr_block->nodes[index]->down;
             curr_block->r_unlock();
         }
+        l--;
     }
 
     if ( found_index == -1 ) {
         // cout << "Key not found" << endl;
+        greatest_min_block -> r_unlock();
         return {nullptr, -1};
     }
     return {greatest_min_block, found_index}; 
